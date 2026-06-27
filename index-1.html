@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Pseudoscience — بنك الأسئلة</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS — Pseudoscience Medical
+   Palette: deep navy + electric teal + warm white
+   Signature: animated molecule-dot background
+═══════════════════════════════════════════ */
+:root {
+  --navy:       #0B1628;
+  --navy-2:     #111F38;
+  --navy-3:     #1A2F50;
+  --teal:       #00C9A7;
+  --teal-dim:   #00A389;
+  --teal-glow:  rgba(0,201,167,0.15);
+  --teal-glass: rgba(0,201,167,0.08);
+  --amber:      #FFB347;
+  --red:        #FF5A5A;
+  --green:      #4ADE80;
+  --text-1:     #EFF6FF;
+  --text-2:     #94A3B8;
+  --text-3:     #4E6480;
+  --border:     rgba(255,255,255,0.07);
+  --border-2:   rgba(0,201,167,0.25);
+  --radius-sm:  10px;
+  --radius-md:  16px;
+  --radius-lg:  24px;
+  --font:       'IBM Plex Sans Arabic', sans-serif;
+  --mono:       'IBM Plex Mono', monospace;
+  --ease:       cubic-bezier(0.16,1,0.3,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--navy);
+  color: var(--text-1);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Molecule Background ── */
+.bg-canvas {
+  position: fixed; inset: 0; z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,201,167,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(0,100,200,0.08) 0%, transparent 50%),
+    var(--navy);
+  pointer-events: none;
+}
+.bg-canvas::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle 1.5px at 20% 30%, rgba(0,201,167,0.3) 0%, transparent 100%),
+    radial-gradient(circle 1px at 70% 60%, rgba(0,201,167,0.2) 0%, transparent 100%),
+    radial-gradient(circle 2px at 45% 80%, rgba(0,201,167,0.15) 0%, transparent 100%),
+    radial-gradient(circle 1px at 85% 25%, rgba(255,255,255,0.1) 0%, transparent 100%),
+    radial-gradient(circle 1.5px at 10% 70%, rgba(0,201,167,0.2) 0%, transparent 100%);
+}
+
+/* ── App Shell ── */
+#app { position: relative; z-index: 1; min-height: 100vh; }
+
+/* ── Header ── */
+.app-header {
+  padding: 20px 20px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(11,22,40,0.85);
+}
+.logo-mark {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), #0099cc);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 0 20px rgba(0,201,167,0.3);
+}
+.logo-text { line-height: 1.1; }
+.logo-name { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; color: var(--text-1); }
+.logo-sub  { font-size: 10px; color: var(--teal); font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; }
+
+.header-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-2); font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.icon-btn:hover, .icon-btn.active {
+  background: var(--teal-glass); border-color: var(--border-2); color: var(--teal);
+}
+
+/* ── Screens ── */
+.screen { display: none; padding: 20px; animation: fadeUp 0.3s var(--ease); }
+.screen.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Section Title ── */
+.section-title {
+  font-size: 11px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--teal);
+  margin-bottom: 14px; padding-right: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title::before {
+  content: ''; display: inline-block;
+  width: 3px; height: 14px; border-radius: 2px;
+  background: var(--teal);
+}
+
+/* ── Stage Cards (Home) ── */
+.stage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.stage-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--navy-2);
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  text-align: center; position: relative; overflow: hidden;
+}
+.stage-card::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--teal-glass), transparent);
+  opacity: 0; transition: opacity 0.25s;
+}
+.stage-card:hover::before, .stage-card:active::before { opacity: 1; }
+.stage-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+.stage-card.locked { opacity: 0.45; cursor: not-allowed; }
+.stage-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+.stage-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
+.stage-count { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+.stage-badge {
+  position: absolute; top: 8px; left: 8px;
+  font-size: 9px; font-weight: 700; padding: 2px 7px;
+  border-radius: 20px; letter-spacing: 0.5px;
+}
+.badge-soon { background: rgba(255,179,71,0.15); color: var(--amber); border: 1px solid rgba(255,179,71,0.3); }
+.badge-active { background: rgba(0,201,167,0.15); color: var(--teal); border: 1px solid rgba(0,201,167,0.3); }
+
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; flex-wrap: wrap;
+}
+.breadcrumb-item {
+  font-size: 12px; color: var(--text-3); cursor: pointer;
+  transition: color 0.2s;
+}
+.breadcrumb-item:hover { color: var(--teal); }
+.breadcrumb-item.active { color: var(--text-1); cursor: default; }
+.breadcrumb-sep { color: var(--text-3); font-size: 10px; }
+
+/* ── List Items ── */
+.list-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--navy-2);
+  cursor: pointer; margin-bottom: 10px;
+  transition: all 0.2s var(--ease);
+}
+.list-item:hover { border-color: var(--border-2); background: var(--navy-3); transform: translateX(-3px); }
+.list-item-icon {
+  width: 40px; height: 40px; border-radius: var(--radius-sm);
+  background: var(--teal-glass); border: 1px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.list-item-body { flex: 1; }
+.list-item-name { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.list-item-sub  { font-size: 12px; color: var(--text-2); margin-top: 3px; }
+.list-item-arrow { color: var(--text-3); font-size: 14px; }
+
+/* ── Set Type Tabs ── */
+.type-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.type-tab {
+  padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border); background: transparent; color: var(--text-2);
+  cursor: pointer; white-space: nowrap; transition: all 0.2s;
+}
+.type-tab.active { background: var(--teal); color: var(--navy); border-color: var(--teal); }
+
+/* ── Quiz Mode ── */
+.quiz-wrap { max-width: 600px; margin: 0 auto; }
+
+.quiz-progress-bar {
+  height: 3px; background: var(--border); border-radius: 99px;
+  margin-bottom: 20px; overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--teal), #0099cc);
+  border-radius: 99px; transition: width 0.4s var(--ease);
+}
+
+.quiz-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.quiz-counter { font-size: 12px; color: var(--text-2); }
+.quiz-score-pill {
+  font-size: 11px; font-weight: 600; padding: 4px 12px;
+  border-radius: 20px; background: var(--teal-glass);
+  border: 1px solid var(--border-2); color: var(--teal);
+}
+
+.question-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--navy-2);
+  padding: 24px; margin-bottom: 16px;
+}
+.question-number {
+  font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--teal);
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.question-text {
+  font-size: 15px; font-weight: 500; line-height: 1.7;
+  color: var(--text-1);
+}
+.question-img {
+  width: 100%; border-radius: var(--radius-sm); margin-top: 14px;
+  border: 1px solid var(--border);
+}
+
+.options-grid { display: flex; flex-direction: column; gap: 10px; }
+.option-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--navy-2); cursor: pointer;
+  text-align: right; width: 100%;
+  transition: all 0.2s var(--ease);
+  position: relative; overflow: hidden;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--border-2); background: var(--navy-3);
+}
+.option-letter {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.04);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: var(--text-2);
+  font-family: var(--mono); transition: all 0.2s;
+}
+.option-text { font-size: 13px; color: var(--text-1); line-height: 1.5; flex: 1; }
+
+.option-btn.correct {
+  border-color: var(--green); background: rgba(74,222,128,0.08);
+}
+.option-btn.correct .option-letter {
+  background: var(--green); color: var(--navy); border-color: var(--green);
+}
+.option-btn.wrong {
+  border-color: var(--red); background: rgba(255,90,90,0.08);
+}
+.option-btn.wrong .option-letter {
+  background: var(--red); color: white; border-color: var(--red);
+}
+.option-btn:disabled { cursor: default; }
+
+.explanation-box {
+  border-radius: var(--radius-md); padding: 16px;
+  background: rgba(0,201,167,0.06); border: 1px solid var(--border-2);
+  margin-top: 14px; display: none;
+}
+.explanation-box.show { display: block; animation: fadeUp 0.3s var(--ease); }
+.explanation-label { font-size: 10px; font-weight: 700; color: var(--teal); letter-spacing: 1.5px; margin-bottom: 8px; }
+.explanation-text  { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+
+.quiz-nav {
+  display: flex; gap: 10px; margin-top: 16px;
+}
+.btn {
+  flex: 1; padding: 14px; border-radius: var(--radius-md);
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none; transition: all 0.2s var(--ease);
+}
+.btn-primary {
+  background: var(--teal); color: var(--navy);
+}
+.btn-primary:hover { background: var(--teal-dim); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--navy-3); color: var(--text-1);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--border-2); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+/* ── Results ── */
+.results-card {
+  border-radius: var(--radius-lg); padding: 32px 24px;
+  background: var(--navy-2); border: 1px solid var(--border);
+  text-align: center; margin-bottom: 20px;
+}
+.results-ring {
+  width: 110px; height: 110px; border-radius: 50%;
+  border: 4px solid var(--border); position: relative;
+  margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+  background: conic-gradient(var(--teal) 0%, var(--border) 0%);
+}
+.results-pct { font-size: 28px; font-weight: 700; color: var(--text-1); }
+.results-label { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.results-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.results-subtitle { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.results-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px; margin: 24px 0;
+}
+.stat-box {
+  border-radius: var(--radius-md); padding: 14px 10px;
+  background: var(--navy-3); border: 1px solid var(--border);
+}
+.stat-num { font-size: 22px; font-weight: 700; }
+.stat-lbl { font-size: 10px; color: var(--text-2); margin-top: 4px; }
+.stat-correct { color: var(--green); }
+.stat-wrong   { color: var(--red); }
+.stat-total   { color: var(--teal); }
+
+/* ── Admin Panel ── */
+.admin-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px;
+  border-bottom: 1px solid var(--border); padding-bottom: 0;
+}
+.admin-tab {
+  padding: 10px 16px; font-size: 13px; font-weight: 600;
+  color: var(--text-2); cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.2s; font-family: var(--font);
+}
+.admin-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--teal); letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 12px 14px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--navy-3); color: var(--text-1);
+  font-family: var(--font); font-size: 14px;
+  transition: border-color 0.2s; outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--teal);
+}
+.form-select option { background: var(--navy-2); }
+.form-textarea { resize: vertical; min-height: 80px; }
+
+.options-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.correct-select { display: flex; gap: 8px; flex-wrap: wrap; }
+.correct-opt {
+  width: 40px; height: 40px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--navy-3);
+  color: var(--text-2); font-weight: 700; font-family: var(--mono);
+  cursor: pointer; transition: all 0.2s;
+}
+.correct-opt.selected { background: var(--teal); color: var(--navy); border-color: var(--teal); }
+
+.q-list-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--navy-2);
+  margin-bottom: 10px;
+}
+.q-num {
+  width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0;
+  background: var(--teal-glass); border: 1px solid var(--border-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--teal); font-family: var(--mono);
+}
+.q-body { flex: 1; }
+.q-text { font-size: 13px; color: var(--text-1); line-height: 1.5; }
+.q-answer { font-size: 11px; color: var(--teal); margin-top: 4px; font-weight: 600; }
+.q-actions { display: flex; gap: 6px; margin-top: 8px; }
+.q-action-btn {
+  padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+  border: 1px solid var(--border); background: transparent; color: var(--text-2);
+  cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+.q-action-btn.edit { color: var(--teal); border-color: var(--border-2); }
+.q-action-btn.del  { color: var(--red);  border-color: rgba(255,90,90,0.3); }
+.q-action-btn:hover { opacity: 0.8; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--navy-3); border: 1px solid var(--border);
+  color: var(--text-1); padding: 12px 20px; border-radius: 30px;
+  font-size: 13px; font-weight: 500; z-index: 9999;
+  transition: transform 0.3s var(--ease), opacity 0.3s;
+  white-space: nowrap; opacity: 0;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(74,222,128,0.4); color: var(--green); }
+.toast.error   { border-color: rgba(255,90,90,0.4);  color: var(--red);   }
+
+/* ── Loading ── */
+.spinner {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--teal);
+  animation: spin 0.7s linear infinite;
+  margin: 40px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state { text-align: center; padding: 48px 20px; color: var(--text-2); }
+.empty-icon  { font-size: 40px; margin-bottom: 12px; }
+.empty-text  { font-size: 14px; line-height: 1.6; }
+
+/* ── Stats Screen ── */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.stats-card {
+  border-radius: var(--radius-md); padding: 18px;
+  background: var(--navy-2); border: 1px solid var(--border);
+}
+.stats-card-num { font-size: 28px; font-weight: 700; color: var(--teal); }
+.stats-card-lbl { font-size: 11px; color: var(--text-2); margin-top: 4px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 99px; }
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; background: rgba(11,22,40,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  padding: 8px 4px 12px; z-index: 200;
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px; cursor: pointer; transition: all 0.2s; border: none; background: none;
+  color: var(--text-3); font-family: var(--font);
+}
+.nav-item.active { color: var(--teal); }
+.nav-icon  { font-size: 20px; }
+.nav-label { font-size: 9px; font-weight: 600; letter-spacing: 0.5px; }
+
+#main-content { padding-bottom: 80px; }
+
+/* ── Modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px); z-index: 500;
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal-sheet {
+  width: 100%; max-width: 600px; max-height: 90vh;
+  background: var(--navy-2); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border: 1px solid var(--border); overflow-y: auto;
+  padding: 24px; transform: translateY(20px);
+  transition: transform 0.3s var(--ease);
+}
+.modal-overlay.open .modal-sheet { transform: translateY(0); }
+.modal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-2); cursor: pointer; font-size: 16px;
+}
+
+/* Admin password screen */
+.admin-lock {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 32px 24px; text-align: center;
+}
+.admin-lock-icon { font-size: 48px; margin-bottom: 20px; }
+.admin-lock h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.admin-lock p  { font-size: 13px; color: var(--text-2); margin-bottom: 24px; }
+
+</style>
+</head>
+<body>
+<div class="bg-canvas"></div>
+<div id="app">
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="showScreen('home')" id="nav-home">
+      <span class="nav-icon">🏠</span><span class="nav-label">الرئيسية</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('browse')" id="nav-browse">
+      <span class="nav-icon">📚</span><span class="nav-label">الأسئلة</span>
+    </button>
+    <button class="nav-item" onclick="showScreen('stats-screen')" id="nav-stats">
+      <span class="nav-icon">📊</span><span class="nav-label">إحصائياتي</span>
+    </button>
+    <button class="nav-item" onclick="tryAdmin()" id="nav-admin">
+      <span class="nav-icon">⚙️</span><span class="nav-label">أدمن</span>
+    </button>
+  </nav>
+
+  <div id="main-content">
+
+  <!-- ══════════════ HOME SCREEN ══════════════ -->
+  <div id="home" class="screen active">
+    <div class="app-header">
+      <div class="logo-mark">
+        <div class="logo-icon">🔬</div>
+        <div class="logo-text">
+          <div class="logo-name">Pseudoscience</div>
+          <div class="logo-sub">Question Bank</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 24px 20px 0;">
+      <div class="section-title">المراحل الدراسية</div>
+      <div class="stage-grid" id="stages-grid">
+        <div class="spinner"></div>
+      </div>
+
+      <div class="section-title">آخر ما تعلمته</div>
+      <div id="recent-activity">
+        <div class="empty-state">
+          <div class="empty-icon">✨</div>
+          <div class="empty-text">ابدأ بحل الأسئلة لتظهر هنا مسيرتك</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ BROWSE SCREEN ══════════════ -->
+  <div id="browse" class="screen">
+    <div class="app-header">
+      <div class="logo-mark">
+        <button class="icon-btn" id="back-btn" onclick="goBack()" style="display:none">←</button>
+        <div id="browse-title" style="font-size:15px;font-weight:700;">تصفح الأسئلة</div>
+      </div>
+    </div>
+    <div style="padding: 20px;">
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <div id="browse-content"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ QUIZ SCREEN ══════════════ -->
+  <div id="quiz-screen" class="screen">
+    <div class="app-header">
+      <div class="logo-mark">
+        <button class="icon-btn" onclick="exitQuiz()">←</button>
+        <div id="quiz-title" style="font-size:14px;font-weight:700;"></div>
+      </div>
+      <div id="quiz-timer-display" style="font-size:13px;color:var(--text-2);display:none;font-family:var(--mono)"></div>
+    </div>
+    <div style="padding:20px;">
+      <div class="quiz-wrap">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress"></div></div>
+        <div class="quiz-meta">
+          <span class="quiz-counter" id="quiz-counter"></span>
+          <span class="quiz-score-pill" id="quiz-score">✅ 0</span>
+        </div>
+        <div id="question-area"></div>
+        <div class="quiz-nav">
+          <button class="btn btn-secondary" id="btn-prev" onclick="quizNav(-1)">السابق</button>
+          <button class="btn btn-primary"   id="btn-next" onclick="quizNav(1)">التالي</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ RESULTS SCREEN ══════════════ -->
+  <div id="results-screen" class="screen">
+    <div style="padding:20px;">
+      <div class="quiz-wrap">
+        <div class="results-card">
+          <div class="results-ring" id="results-ring">
+            <div>
+              <div class="results-pct" id="results-pct">0%</div>
+            </div>
+          </div>
+          <div class="results-title" id="results-title"></div>
+          <div class="results-subtitle" id="results-subtitle"></div>
+          <div class="results-stats">
+            <div class="stat-box"><div class="stat-num stat-correct" id="r-correct">0</div><div class="stat-lbl">صحيح</div></div>
+            <div class="stat-box"><div class="stat-num stat-wrong"   id="r-wrong">0</div>  <div class="stat-lbl">خطأ</div></div>
+            <div class="stat-box"><div class="stat-num stat-total"   id="r-total">0</div>  <div class="stat-lbl">إجمالي</div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-primary" onclick="retryQuiz()">إعادة المحاولة 🔄</button>
+          <button class="btn btn-secondary" onclick="showScreen('browse')">تصفح آخر 📚</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ STATS SCREEN ══════════════ -->
+  <div id="stats-screen" class="screen">
+    <div class="app-header">
+      <div class="logo-mark">
+        <div class="logo-icon">📊</div>
+        <div class="logo-text"><div class="logo-name">إحصائياتي</div></div>
+      </div>
+    </div>
+    <div style="padding:20px;">
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="section-title">تاريخ الجلسات</div>
+      <div id="sessions-list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ADMIN SCREEN ══════════════ -->
+  <div id="admin-screen" class="screen">
+    <div class="app-header">
+      <div class="logo-mark">
+        <div class="logo-icon">⚙️</div>
+        <div class="logo-text"><div class="logo-name">لوحة الأدمن</div><div class="logo-sub">Pseudoscience</div></div>
+      </div>
+      <button class="icon-btn" onclick="adminLogout()">🚪</button>
+    </div>
+    <div style="padding:20px;">
+      <div class="admin-tabs">
+        <button class="admin-tab active" onclick="adminTab('add')">➕ إضافة</button>
+        <button class="admin-tab" onclick="adminTab('manage')">📋 إدارة</button>
+        <button class="admin-tab" onclick="adminTab('structure')">🗂 الهيكل</button>
+      </div>
+
+      <!-- ADD TAB -->
+      <div id="admin-add">
+        <div class="form-group">
+          <label class="form-label">المرحلة</label>
+          <select class="form-select" id="a-stage" onchange="loadAdminSemesters()">
+            <option value="">اختر المرحلة...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الفصل / السنة</label>
+          <select class="form-select" id="a-semester" onchange="loadAdminSubjects()">
+            <option value="">اختر الفصل...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">المادة</label>
+          <select class="form-select" id="a-subject" onchange="loadAdminSets()">
+            <option value="">اختر المادة...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">مجموعة الأسئلة</label>
+          <div style="display:flex;gap:8px;">
+            <select class="form-select" id="a-set" style="flex:1">
+              <option value="">اختر مجموعة...</option>
+            </select>
+            <button class="btn btn-secondary" style="flex:0;padding:0 14px;font-size:20px;" onclick="openNewSetModal()">＋</button>
+          </div>
+        </div>
+        <hr style="border-color:var(--border);margin:20px 0;"/>
+        <div class="form-group">
+          <label class="form-label">نص السؤال</label>
+          <textarea class="form-textarea" id="a-qtext" placeholder="اكتب السؤال هنا..." rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الخيارات</label>
+          <div class="options-row">
+            <div><label style="font-size:11px;color:var(--text-2);margin-bottom:4px;display:block;">A</label><input class="form-input" id="a-opt-a" placeholder="الخيار أ"/></div>
+            <div><label style="font-size:11px;color:var(--text-2);margin-bottom:4px;display:block;">B</label><input class="form-input" id="a-opt-b" placeholder="الخيار ب"/></div>
+            <div><label style="font-size:11px;color:var(--text-2);margin-bottom:4px;display:block;">C</label><input class="form-input" id="a-opt-c" placeholder="الخيار ج (اختياري)"/></div>
+            <div><label style="font-size:11px;color:var(--text-2);margin-bottom:4px;display:block;">D</label><input class="form-input" id="a-opt-d" placeholder="الخيار د (اختياري)"/></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الإجابة الصحيحة</label>
+          <div class="correct-select" id="correct-select">
+            <button class="correct-opt" data-val="A" onclick="selectCorrect(this)">A</button>
+            <button class="correct-opt" data-val="B" onclick="selectCorrect(this)">B</button>
+            <button class="correct-opt" data-val="C" onclick="selectCorrect(this)">C</button>
+            <button class="correct-opt" data-val="D" onclick="selectCorrect(this)">D</button>
+            <button class="correct-opt" data-val="E" onclick="selectCorrect(this)">E</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الشرح (اختياري)</label>
+          <textarea class="form-textarea" id="a-expl" placeholder="شرح الإجابة الصحيحة..." rows="2"></textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%" onclick="saveQuestion()">💾 حفظ السؤال</button>
+      </div>
+
+      <!-- MANAGE TAB -->
+      <div id="admin-manage" style="display:none">
+        <div class="form-group">
+          <label class="form-label">اختر مجموعة لإدارتها</label>
+          <div style="display:flex;gap:8px;flex-direction:column">
+            <select class="form-select" id="m-stage" onchange="mLoadSemesters()"><option value="">المرحلة...</option></select>
+            <select class="form-select" id="m-semester" onchange="mLoadSubjects()"><option value="">الفصل...</option></select>
+            <select class="form-select" id="m-subject" onchange="mLoadSets()"><option value="">المادة...</option></select>
+            <select class="form-select" id="m-set" onchange="mLoadQuestions()"><option value="">المجموعة...</option></select>
+          </div>
+        </div>
+        <div id="manage-questions-list"></div>
+      </div>
+
+      <!-- STRUCTURE TAB -->
+      <div id="admin-structure" style="display:none">
+        <div style="display:grid;gap:10px;">
+          <button class="btn btn-secondary" onclick="openStructureModal('subject')">➕ إضافة مادة جديدة</button>
+          <button class="btn btn-secondary" onclick="openStructureModal('semester')">➕ إضافة فصل/سنة جديدة</button>
+        </div>
+        <div style="margin-top:20px;" id="structure-tree"></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end main-content -->
+</div><!-- end app -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- Admin Lock -->
+<div id="admin-lock-overlay" style="display:none;position:fixed;inset:0;z-index:300;background:var(--navy);">
+  <div class="admin-lock">
+    <div class="admin-lock-icon">🔐</div>
+    <h2>لوحة الأدمن</h2>
+    <p>أدخل كلمة السر للوصول</p>
+    <input class="form-input" type="password" id="admin-pass-input" placeholder="كلمة السر..."
+      style="max-width:280px;margin-bottom:12px;text-align:center;"
+      onkeydown="if(event.key==='Enter')checkAdminPass()"/>
+    <button class="btn btn-primary" style="max-width:280px;width:100%" onclick="checkAdminPass()">دخول</button>
+    <button class="btn btn-secondary" style="max-width:280px;width:100%;margin-top:8px" onclick="document.getElementById('admin-lock-overlay').style.display='none'">إلغاء</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const SB_URL  = 'https://smyquubitieuprrxzsnr.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNteXF1dWJpdGlldXBycnh6c25yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NTE3NTksImV4cCI6MjA5ODEyNzc1OX0.ExD3vYT5_N_oJTQV7UTqh5hHK3sIQprcebxRgTgQkcE';
+const ADMIN_PASS = 'pseudo2025'; // ← غيّرها بعد الرفع
+
+// ═══════════════════════════════════════════
+//  SUPABASE HELPER
+// ═══════════════════════════════════════════
+async function sbFetch(path, opts = {}) {
+  const r = await fetch(`${SB_URL}/rest/v1/${path}`, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': `Bearer ${SB_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.message || r.statusText);
+  }
+  return r.status === 204 ? null : r.json();
+}
+
+const db = {
+  get:    (t, q='') => sbFetch(`${t}?${q}&order=order_num.asc,id.asc`),
+  post:   (t, b)    => sbFetch(t, { method:'POST', body: JSON.stringify(b) }),
+  patch:  (t, q, b) => sbFetch(`${t}?${q}`, { method:'PATCH', body: JSON.stringify(b) }),
+  delete: (t, q)    => sbFetch(`${t}?${q}`, { method:'DELETE', prefer:'return=minimal' }),
+};
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let state = {
+  screen: 'home',
+  nav: [], // breadcrumb stack
+  quiz: {
+    questions: [], current: 0, answers: {},
+    score: 0, setName: '', startTime: null
+  },
+  adminUnlocked: false,
+  selectedCorrect: null,
+  editingId: null,
+};
+
+// Local stats
+function getStats() { return JSON.parse(localStorage.getItem('ps_stats') || '{"sessions":[],"total":0,"correct":0}'); }
+function saveStats(s) { localStorage.setItem('ps_stats', JSON.stringify(s)); }
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+window.addEventListener('load', async () => {
+  if (window.Telegram?.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+  }
+  await loadHome();
+});
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const map = {'home':'nav-home','browse':'nav-browse','stats-screen':'nav-stats','admin-screen':'nav-admin'};
+  if (map[id]) document.getElementById(map[id]).classList.add('active');
+  state.screen = id;
+  if (id === 'stats-screen') renderStats();
+  if (id === 'browse' && state.nav.length === 0) loadBrowse();
+}
+
+// ═══════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════
+async function loadHome() {
+  try {
+    const stages = await db.get('stages');
+    const grid = document.getElementById('stages-grid');
+    grid.innerHTML = stages.map(s => `
+      <div class="stage-card ${s.id===2?'locked':''}" onclick="${s.id===2?'toast(\'قريباً — Clinic\',\'info\')':'browseStage('+s.id+',\''+s.name+'\')'}">
+        <span class="stage-badge ${s.id===2?'badge-soon':'badge-active'}">${s.id===2?'قريباً':'متاح'}</span>
+        <span class="stage-icon">${s.icon}</span>
+        <div class="stage-name">${s.name}</div>
+        <div class="stage-count">${s.name_ar}</div>
+      </div>
+    `).join('');
+    renderRecentActivity();
+  } catch(e) {
+    document.getElementById('stages-grid').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">تعذّر تحميل البيانات</div></div>`;
+  }
+}
+
+function renderRecentActivity() {
+  const stats = getStats();
+  const el = document.getElementById('recent-activity');
+  if (!stats.sessions.length) return;
+  const last = stats.sessions.slice(-3).reverse();
+  el.innerHTML = last.map(s => `
+    <div class="list-item" style="cursor:default">
+      <div class="list-item-icon">📝</div>
+      <div class="list-item-body">
+        <div class="list-item-name">${s.name}</div>
+        <div class="list-item-sub">${s.correct}/${s.total} صحيح · ${new Date(s.date).toLocaleDateString('ar')}</div>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:${s.pct>=70?'var(--green)':'var(--amber)'}">${s.pct}%</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+//  BROWSE
+// ═══════════════════════════════════════════
+function loadBrowse() {
+  state.nav = [];
+  updateBreadcrumb();
+  renderBrowseLevel();
+}
+
+function browseStage(id, name) {
+  state.nav = [{type:'stage', id, name}];
+  showScreen('browse');
+  updateBreadcrumb();
+  renderBrowseLevel();
+}
+
+function updateBreadcrumb() {
+  const bc = document.getElementById('breadcrumb');
+  const backBtn = document.getElementById('back-btn');
+  const title = document.getElementById('browse-title');
+
+  const items = [{type:'root', name:'الأسئلة'}];
+  const all = [...items, ...state.nav];
+
+  bc.innerHTML = all.map((item, i) => {
+    const isLast = i === all.length - 1;
+    return `
+      ${i>0?'<span class="breadcrumb-sep">›</span>':''}
+      <span class="breadcrumb-item ${isLast?'active':''}"
+        onclick="${isLast?'':'navTo('+i+')'}">${item.name}</span>
+    `;
+  }).join('');
+
+  backBtn.style.display = state.nav.length > 0 ? 'flex' : 'none';
+  title.textContent = state.nav.length ? state.nav[state.nav.length-1].name : 'تصفح الأسئلة';
+}
+
+function navTo(idx) {
+  if (idx === 0) { state.nav = []; }
+  else { state.nav = state.nav.slice(0, idx); }
+  updateBreadcrumb();
+  renderBrowseLevel();
+}
+
+function goBack() {
+  state.nav.pop();
+  updateBreadcrumb();
+  renderBrowseLevel();
+}
+
+async function renderBrowseLevel() {
+  const el = document.getElementById('browse-content');
+  el.innerHTML = '<div class="spinner"></div>';
+  const depth = state.nav.length;
+
+  try {
+    if (depth === 0) {
+      // Show stages
+      const stages = await db.get('stages');
+      el.innerHTML = stages.map(s => `
+        <div class="list-item" onclick="navPush({type:'stage',id:${s.id},name:'${s.name}'})">
+          <div class="list-item-icon">${s.icon}</div>
+          <div class="list-item-body">
+            <div class="list-item-name">${s.name}</div>
+            <div class="list-item-sub">${s.name_ar}</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      `).join('') || emptyState('لا توجد مراحل');
+
+    } else if (depth === 1) {
+      // Show semesters
+      const stageId = state.nav[0].id;
+      const sems = await db.get('semesters', `stage_id=eq.${stageId}`);
+      el.innerHTML = sems.map(s => `
+        <div class="list-item" onclick="navPush({type:'semester',id:${s.id},name:'${s.name}'})">
+          <div class="list-item-icon">📅</div>
+          <div class="list-item-body">
+            <div class="list-item-name">${s.name}</div>
+            <div class="list-item-sub">${s.name_ar||''}</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      `).join('') || emptyState('لا توجد فصول بعد');
+
+    } else if (depth === 2) {
+      // Show subjects
+      const semId = state.nav[1].id;
+      const subs = await db.get('subjects', `semester_id=eq.${semId}`);
+      el.innerHTML = subs.map(s => `
+        <div class="list-item" onclick="navPush({type:'subject',id:${s.id},name:'${s.name}'})">
+          <div class="list-item-icon">${s.icon||'📚'}</div>
+          <div class="list-item-body">
+            <div class="list-item-name">${s.name}</div>
+            <div class="list-item-sub">${s.name_ar||''}</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      `).join('') || emptyState('لا توجد مواد بعد');
+
+    } else if (depth === 3) {
+      // Show question sets with type tabs
+      const subId = state.nav[2].id;
+      const sets = await db.get('question_sets', `subject_id=eq.${subId}`);
+
+      const types = {batch:'📚 دفعات', doctor:'👨‍⚕️ دكاتره', mixed:'🔀 متنوعة'};
+      const grouped = {};
+      sets.forEach(s => { if(!grouped[s.set_type]) grouped[s.set_type]=[]; grouped[s.set_type].push(s); });
+
+      let html = `<div class="type-tabs">
+        <button class="type-tab active" onclick="filterSets(this,'all')">الكل (${sets.length})</button>
+        ${Object.keys(grouped).map(t=>`<button class="type-tab" onclick="filterSets(this,'${t}')">${types[t]||t} (${grouped[t].length})</button>`).join('')}
+      </div>
+      <div id="sets-list">`;
+      html += sets.map(s => `
+        <div class="list-item set-item" data-type="${s.set_type}" onclick="openSet(${s.id},'${s.name.replace(/'/g,"\\'")}')">
+          <div class="list-item-icon">${s.set_type==='batch'?'📚':s.set_type==='doctor'?'👨‍⚕️':'🔀'}</div>
+          <div class="list-item-body">
+            <div class="list-item-name">${s.name}</div>
+            <div class="list-item-sub">${s.description||'اضغط للبدء'}</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      `).join('') || emptyState('لا توجد مجموعات بعد');
+      html += '</div>';
+      el.innerHTML = sets.length ? html : emptyState('لا توجد مجموعات أسئلة بعد');
+
+    } else if (depth === 4) {
+      // Set view — start quiz or browse
+      const set = state.nav[3];
+      const questions = await db.get('questions', `set_id=eq.${set.id}`);
+      el.innerHTML = `
+        <div class="results-card" style="margin-bottom:16px;">
+          <div style="font-size:32px;margin-bottom:12px;">📋</div>
+          <div class="results-title">${set.name}</div>
+          <div class="results-subtitle" style="margin-top:8px;">${questions.length} سؤال</div>
+        </div>
+        <div style="display:grid;gap:10px;">
+          <button class="btn btn-primary" onclick="startQuiz(${JSON.stringify(questions).replace(/"/g,'&quot;')}, '${set.name.replace(/'/g,"\\'")}')">
+            🚀 ابدأ الاختبار
+          </button>
+          <button class="btn btn-secondary" onclick="startQuiz(${JSON.stringify(shuffleArr([...questions])).replace(/"/g,'&quot;')}, '${set.name.replace(/'/g,"\\'")}')">
+            🔀 خلط وابدأ
+          </button>
+        </div>
+      `;
+    }
+  } catch(e) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-text">${e.message}</div></div>`;
+  }
+}
+
+function navPush(item) {
+  state.nav.push(item);
+  updateBreadcrumb();
+  renderBrowseLevel();
+}
+
+async function openSet(id, name) {
+  state.nav.push({type:'set', id, name});
+  updateBreadcrumb();
+  renderBrowseLevel();
+}
+
+function filterSets(btn, type) {
+  document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.set-item').forEach(item => {
+    item.style.display = (type==='all' || item.dataset.type===type) ? 'flex' : 'none';
+  });
+}
+
+function emptyState(msg) {
+  return `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">${msg}</div></div>`;
+}
+
+// ═══════════════════════════════════════════
+//  QUIZ ENGINE
+// ═══════════════════════════════════════════
+function startQuiz(questions, name) {
+  if (!questions.length) { showToast('لا توجد أسئلة في هذه المجموعة', 'error'); return; }
+  state.quiz = { questions, current: 0, answers: {}, score: 0, setName: name, startTime: Date.now() };
+  document.getElementById('quiz-title').textContent = name;
+  renderQuestion();
+  showScreen('quiz-screen');
+}
+
+function renderQuestion() {
+  const { questions, current, answers } = state.quiz;
+  const q = questions[current];
+  const total = questions.length;
+  const answered = Object.keys(answers).length;
+
+  document.getElementById('quiz-progress').style.width = `${(current/total)*100}%`;
+  document.getElementById('quiz-counter').textContent = `${current+1} / ${total}`;
+  document.getElementById('quiz-score').textContent = `✅ ${state.quiz.score}`;
+  document.getElementById('btn-prev').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current === total-1 ? 'النتائج 🏁' : 'التالي';
+
+  const opts = ['A','B','C','D','E'].filter(l => q[`option_${l.toLowerCase()}`]);
+  const userAns = answers[current];
+  const isAnswered = userAns !== undefined;
+
+  const area = document.getElementById('question-area');
+  area.innerHTML = `
+    <div class="question-card">
+      <div class="question-number">السؤال ${current+1}</div>
+      <div class="question-text">${q.question_text}</div>
+      ${q.image_url ? `<img class="question-img" src="${q.image_url}" alt=""/>` : ''}
+    </div>
+    <div class="options-grid">
+      ${opts.map(l => {
+        const text = q[`option_${l.toLowerCase()}`];
+        let cls = '';
+        if (isAnswered) {
+          if (l === q.correct_answer) cls = 'correct';
+          else if (l === userAns)     cls = 'wrong';
+        }
+        return `
+          <button class="option-btn ${cls}" ${isAnswered?'disabled':''} onclick="answerQ('${l}')">
+            <span class="option-letter">${l}</span>
+            <span class="option-text">${text}</span>
+          </button>`;
+      }).join('')}
+    </div>
+    <div class="explanation-box ${isAnswered && q.explanation ? 'show' : ''}" id="expl-box">
+      <div class="explanation-label">💡 الشرح</div>
+      <div class="explanation-text">${q.explanation||''}</div>
+    </div>
+  `;
+}
+
+function answerQ(letter) {
+  const { questions, current } = state.quiz;
+  if (state.quiz.answers[current] !== undefined) return;
+  state.quiz.answers[current] = letter;
+  if (letter === questions[current].correct_answer) state.quiz.score++;
+  renderQuestion();
+  if (window.Telegram?.WebApp) Telegram.WebApp.HapticFeedback?.impactOccurred('light');
+}
+
+function quizNav(dir) {
+  const { questions, current } = state.quiz;
+  const next = current + dir;
+  if (next < 0) return;
+  if (next >= questions.length) { showResults(); return; }
+  state.quiz.current = next;
+  renderQuestion();
+}
+
+function showResults() {
+  const { questions, score, setName, startTime } = state.quiz;
+  const total = questions.length;
+  const pct = Math.round((score/total)*100);
+  const duration = Math.round((Date.now()-startTime)/1000);
+
+  document.getElementById('results-pct').textContent = `${pct}%`;
+  document.getElementById('r-correct').textContent = score;
+  document.getElementById('r-wrong').textContent   = total - score;
+  document.getElementById('r-total').textContent   = total;
+
+  const ring = document.getElementById('results-ring');
+  ring.style.background = `conic-gradient(var(--teal) ${pct*3.6}deg, var(--border) 0deg)`;
+
+  const titles = pct>=90?'ممتاز! 🏆':pct>=70?'جيد جداً 🌟':pct>=50?'جيد 👍':'تحتاج مراجعة 📖';
+  document.getElementById('results-title').textContent = titles;
+  document.getElementById('results-subtitle').textContent = `أجبت على ${score} من ${total} بشكل صحيح في ${duration} ثانية`;
+
+  // Save to local stats
+  const stats = getStats();
+  stats.sessions.push({ name: setName, correct: score, total, pct, date: Date.now(), duration });
+  stats.total   = (stats.total||0) + total;
+  stats.correct = (stats.correct||0) + score;
+  if (stats.sessions.length > 50) stats.sessions.shift();
+  saveStats(stats);
+
+  showScreen('results-screen');
+}
+
+function retryQuiz() {
+  state.quiz.current = 0;
+  state.quiz.answers = {};
+  state.quiz.score = 0;
+  state.quiz.startTime = Date.now();
+  renderQuestion();
+  showScreen('quiz-screen');
+}
+
+function exitQuiz() {
+  if (Object.keys(state.quiz.answers).length > 0) {
+    if (confirm('هل تريد الخروج؟ سيُفقد تقدمك.')) showScreen('browse');
+  } else showScreen('browse');
+}
+
+function shuffleArr(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+
+// ═══════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════
+function renderStats() {
+  const stats = getStats();
+  const total   = stats.total || 0;
+  const correct = stats.correct || 0;
+  const pct = total ? Math.round(correct/total*100) : 0;
+
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stats-card"><div class="stats-card-num">${total}</div><div class="stats-card-lbl">إجمالي الأسئلة</div></div>
+    <div class="stats-card"><div class="stats-card-num" style="color:var(--green)">${correct}</div><div class="stats-card-lbl">إجابات صحيحة</div></div>
+    <div class="stats-card"><div class="stats-card-num" style="color:var(--red)">${total-correct}</div><div class="stats-card-lbl">إجابات خاطئة</div></div>
+    <div class="stats-card"><div class="stats-card-num">${pct}%</div><div class="stats-card-lbl">نسبة النجاح</div></div>
+  `;
+
+  const sessions = [...(stats.sessions||[])].reverse().slice(0,10);
+  document.getElementById('sessions-list').innerHTML = sessions.length
+    ? sessions.map(s => `
+      <div class="q-list-item">
+        <div class="q-num">${s.pct}%</div>
+        <div class="q-body">
+          <div class="q-text">${s.name}</div>
+          <div class="q-answer">${s.correct}/${s.total} · ${new Date(s.date).toLocaleDateString('ar')}</div>
+        </div>
+      </div>
+    `).join('')
+    : emptyState('لا توجد جلسات بعد');
+}
+
+// ═══════════════════════════════════════════
+//  ADMIN
+// ═══════════════════════════════════════════
+function tryAdmin() {
+  if (state.adminUnlocked) { showScreen('admin-screen'); loadAdminStages(); return; }
+  document.getElementById('admin-lock-overlay').style.display = 'flex';
+  document.getElementById('admin-pass-input').value = '';
+  setTimeout(() => document.getElementById('admin-pass-input').focus(), 100);
+}
+
+function checkAdminPass() {
+  const val = document.getElementById('admin-pass-input').value;
+  if (val === ADMIN_PASS) {
+    state.adminUnlocked = true;
+    document.getElementById('admin-lock-overlay').style.display = 'none';
+    showScreen('admin-screen');
+    loadAdminStages();
+    showToast('مرحباً بك في لوحة الأدمن ✅', 'success');
+  } else {
+    showToast('كلمة السر خاطئة', 'error');
+    document.getElementById('admin-pass-input').value = '';
+  }
+}
+
+function adminLogout() {
+  state.adminUnlocked = false;
+  showScreen('home');
+}
+
+function adminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('admin-add').style.display     = tab==='add'?'block':'none';
+  document.getElementById('admin-manage').style.display  = tab==='manage'?'block':'none';
+  document.getElementById('admin-structure').style.display = tab==='structure'?'block':'none';
+  if (tab==='manage') loadManageStages();
+  if (tab==='structure') loadStructureTree();
+}
+
+// Admin — Add question dropdowns
+async function loadAdminStages() {
+  const stages = await db.get('stages');
+  const fill = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = '<option value="">اختر...</option>' + stages.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  };
+  fill('a-stage'); fill('m-stage');
+}
+
+async function loadAdminSemesters() {
+  const id = document.getElementById('a-stage').value;
+  if (!id) return;
+  const sems = await db.get('semesters', `stage_id=eq.${id}`);
+  document.getElementById('a-semester').innerHTML = '<option value="">اختر الفصل...</option>' + sems.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  document.getElementById('a-subject').innerHTML  = '<option value="">اختر المادة...</option>';
+  document.getElementById('a-set').innerHTML      = '<option value="">اختر مجموعة...</option>';
+}
+async function loadAdminSubjects() {
+  const id = document.getElementById('a-semester').value;
+  if (!id) return;
+  const subs = await db.get('subjects', `semester_id=eq.${id}`);
+  document.getElementById('a-subject').innerHTML = '<option value="">اختر المادة...</option>' + subs.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  document.getElementById('a-set').innerHTML     = '<option value="">اختر مجموعة...</option>';
+}
+async function loadAdminSets() {
+  const id = document.getElementById('a-subject').value;
+  if (!id) return;
+  const sets = await db.get('question_sets', `subject_id=eq.${id}`);
+  document.getElementById('a-set').innerHTML = '<option value="">اختر مجموعة...</option>' + sets.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+function selectCorrect(btn) {
+  document.querySelectorAll('.correct-opt').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.selectedCorrect = btn.dataset.val;
+}
+
+async function saveQuestion() {
+  const setId  = document.getElementById('a-set').value;
+  const qtext  = document.getElementById('a-qtext').value.trim();
+  const optA   = document.getElementById('a-opt-a').value.trim();
+  const optB   = document.getElementById('a-opt-b').value.trim();
+  const optC   = document.getElementById('a-opt-c').value.trim();
+  const optD   = document.getElementById('a-opt-d').value.trim();
+  const expl   = document.getElementById('a-expl').value.trim();
+
+  if (!setId)  return showToast('اختر مجموعة أسئلة', 'error');
+  if (!qtext)  return showToast('أدخل نص السؤال', 'error');
+  if (!optA || !optB) return showToast('أدخل خيار A وB على الأقل', 'error');
+  if (!state.selectedCorrect) return showToast('حدد الإجابة الصحيحة', 'error');
+
+  const payload = {
+    set_id: parseInt(setId),
+    question_text: qtext,
+    option_a: optA, option_b: optB,
+    option_c: optC||null, option_d: optD||null,
+    correct_answer: state.selectedCorrect,
+    explanation: expl||null,
+  };
+
+  try {
+    if (state.editingId) {
+      await db.patch('questions', `id=eq.${state.editingId}`, payload);
+      showToast('تم تعديل السؤال ✅', 'success');
+      state.editingId = null;
+    } else {
+      await db.post('questions', payload);
+      showToast('تم حفظ السؤال ✅', 'success');
+    }
+    // Clear form
+    ['a-qtext','a-opt-a','a-opt-b','a-opt-c','a-opt-d','a-expl'].forEach(id => document.getElementById(id).value='');
+    document.querySelectorAll('.correct-opt').forEach(b => b.classList.remove('selected'));
+    state.selectedCorrect = null;
+  } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
+}
+
+// Admin — Manage
+async function loadManageStages() { await loadAdminStages(); }
+async function mLoadSemesters() {
+  const id = document.getElementById('m-stage').value;
+  if (!id) return;
+  const sems = await db.get('semesters', `stage_id=eq.${id}`);
+  document.getElementById('m-semester').innerHTML = '<option value="">الفصل...</option>' + sems.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+async function mLoadSubjects() {
+  const id = document.getElementById('m-semester').value;
+  if (!id) return;
+  const subs = await db.get('subjects', `semester_id=eq.${id}`);
+  document.getElementById('m-subject').innerHTML = '<option value="">المادة...</option>' + subs.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+async function mLoadSets() {
+  const id = document.getElementById('m-subject').value;
+  if (!id) return;
+  const sets = await db.get('question_sets', `subject_id=eq.${id}`);
+  document.getElementById('m-set').innerHTML = '<option value="">المجموعة...</option>' + sets.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+async function mLoadQuestions() {
+  const id = document.getElementById('m-set').value;
+  if (!id) return;
+  const el = document.getElementById('manage-questions-list');
+  el.innerHTML = '<div class="spinner"></div>';
+  const qs = await db.get('questions', `set_id=eq.${id}`);
+  el.innerHTML = qs.length ? qs.map((q,i) => `
+    <div class="q-list-item">
+      <div class="q-num">${i+1}</div>
+      <div class="q-body">
+        <div class="q-text">${q.question_text.substring(0,80)}${q.question_text.length>80?'...':''}</div>
+        <div class="q-answer">✅ ${q.correct_answer}</div>
+        <div class="q-actions">
+          <button class="q-action-btn edit" onclick="editQuestion(${q.id})">تعديل</button>
+          <button class="q-action-btn del"  onclick="deleteQuestion(${q.id})">حذف</button>
+        </div>
+      </div>
+    </div>
+  `).join('') : emptyState('لا توجد أسئلة');
+}
+
+async function editQuestion(id) {
+  const qs = await sbFetch(`questions?id=eq.${id}`);
+  const q = qs[0];
+  state.editingId = id;
+  adminTab('add');
+  document.querySelectorAll('.admin-tab')[0].click();
+  document.getElementById('a-qtext').value  = q.question_text;
+  document.getElementById('a-opt-a').value  = q.option_a||'';
+  document.getElementById('a-opt-b').value  = q.option_b||'';
+  document.getElementById('a-opt-c').value  = q.option_c||'';
+  document.getElementById('a-opt-d').value  = q.option_d||'';
+  document.getElementById('a-expl').value   = q.explanation||'';
+  document.querySelectorAll('.correct-opt').forEach(b => {
+    if (b.dataset.val === q.correct_answer) { b.classList.add('selected'); state.selectedCorrect = q.correct_answer; }
+    else b.classList.remove('selected');
+  });
+  showToast('جاهز للتعديل — اضغط حفظ', 'success');
+}
+
+async function deleteQuestion(id) {
+  if (!confirm('هل أنت متأكد من حذف هذا السؤال؟')) return;
+  try {
+    await db.delete('questions', `id=eq.${id}`);
+    showToast('تم الحذف ✅', 'success');
+    mLoadQuestions();
+  } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
+}
+
+// Admin — New Set Modal
+function openNewSetModal() {
+  const subId = document.getElementById('a-subject').value;
+  if (!subId) return showToast('اختر المادة أولاً', 'error');
+  document.getElementById('modal-title').textContent = 'إضافة مجموعة أسئلة';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label class="form-label">اسم المجموعة</label>
+      <input class="form-input" id="new-set-name" placeholder="مثال: دفعة 2022 أو د. محمد"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">النوع</label>
+      <select class="form-select" id="new-set-type">
+        <option value="batch">📚 دفعة</option>
+        <option value="doctor">👨‍⚕️ دكتور</option>
+        <option value="mixed">🔀 متنوعة</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">وصف (اختياري)</label>
+      <input class="form-input" id="new-set-desc" placeholder="وصف قصير..."/>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="createSet(${subId})">إنشاء</button>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+
+async function createSet(subId) {
+  const name = document.getElementById('new-set-name').value.trim();
+  const type = document.getElementById('new-set-type').value;
+  const desc = document.getElementById('new-set-desc').value.trim();
+  if (!name) return showToast('أدخل اسم المجموعة', 'error');
+  try {
+    await db.post('question_sets', { subject_id: parseInt(subId), name, set_type: type, description: desc||null });
+    showToast('تم إنشاء المجموعة ✅', 'success');
+    closeModal();
+    await loadAdminSets();
+  } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
+}
+
+// Admin — Structure
+async function loadStructureTree() {
+  const el = document.getElementById('structure-tree');
+  el.innerHTML = '<div class="spinner"></div>';
+  const stages = await db.get('stages');
+  const sems   = await db.get('semesters');
+  const subs   = await db.get('subjects');
+
+  el.innerHTML = stages.map(st => `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:8px;">${st.icon} ${st.name}</div>
+      ${sems.filter(s=>s.stage_id===st.id).map(sem=>`
+        <div style="margin-right:12px;margin-bottom:8px;">
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:6px;">📅 ${sem.name}</div>
+          ${subs.filter(s=>s.semester_id===sem.id).map(sub=>`
+            <div style="margin-right:12px;font-size:11px;color:var(--text-3);margin-bottom:3px;">${sub.icon||'📚'} ${sub.name}</div>
+          `).join('') || '<div style="margin-right:12px;font-size:11px;color:var(--text-3);">لا توجد مواد</div>'}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function openStructureModal(type) {
+  if (type === 'subject') {
+    document.getElementById('modal-title').textContent = 'إضافة مادة جديدة';
+    document.getElementById('modal-body').innerHTML = `
+      <div class="form-group">
+        <label class="form-label">الفصل</label>
+        <select class="form-select" id="new-sub-sem"><option value="">اختر...</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">اسم المادة (إنجليزي)</label>
+        <input class="form-input" id="new-sub-name" placeholder="مثال: Anatomy"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">اسم المادة (عربي)</label>
+        <input class="form-input" id="new-sub-name-ar" placeholder="مثال: علم التشريح"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الأيقونة</label>
+        <input class="form-input" id="new-sub-icon" placeholder="📚" value="📚" style="width:80px"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="createSubject()">إنشاء</button>
+    `;
+    document.getElementById('modal').classList.add('open');
+    // Fill semesters
+    db.get('semesters').then(sems => {
+      document.getElementById('new-sub-sem').innerHTML = '<option value="">اختر الفصل...</option>' + sems.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+    });
+  } else {
+    document.getElementById('modal-title').textContent = 'إضافة فصل/سنة جديدة';
+    document.getElementById('modal-body').innerHTML = `
+      <div class="form-group">
+        <label class="form-label">المرحلة</label>
+        <select class="form-select" id="new-sem-stage"><option value="">اختر...</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الاسم (إنجليزي)</label>
+        <input class="form-input" id="new-sem-name" placeholder="Year 3 — Semester 1"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">الاسم (عربي)</label>
+        <input class="form-input" id="new-sem-name-ar" placeholder="السنة الثالثة — الفصل الأول"/>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="createSemester()">إنشاء</button>
+    `;
+    document.getElementById('modal').classList.add('open');
+    db.get('stages').then(stages => {
+      document.getElementById('new-sem-stage').innerHTML = '<option value="">اختر المرحلة...</option>' + stages.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+    });
+  }
+}
+
+async function createSubject() {
+  const semId  = document.getElementById('new-sub-sem').value;
+  const name   = document.getElementById('new-sub-name').value.trim();
+  const nameAr = document.getElementById('new-sub-name-ar').value.trim();
+  const icon   = document.getElementById('new-sub-icon').value.trim() || '📚';
+  if (!semId || !name) return showToast('أدخل الفصل والاسم', 'error');
+  try {
+    await db.post('subjects', { semester_id: parseInt(semId), name, name_ar: nameAr||null, icon });
+    showToast('تمت إضافة المادة ✅', 'success');
+    closeModal(); loadStructureTree();
+  } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
+}
+
+async function createSemester() {
+  const stageId = document.getElementById('new-sem-stage').value;
+  const name    = document.getElementById('new-sem-name').value.trim();
+  const nameAr  = document.getElementById('new-sem-name-ar').value.trim();
+  if (!stageId || !name) return showToast('أدخل المرحلة والاسم', 'error');
+  try {
+    await db.post('semesters', { stage_id: parseInt(stageId), name, name_ar: nameAr||null });
+    showToast('تمت إضافة الفصل ✅', 'success');
+    closeModal(); loadStructureTree();
+  } catch(e) { showToast('خطأ: ' + e.message, 'error'); }
+}
+
+// ═══════════════════════════════════════════
+//  MODAL
+// ═══════════════════════════════════════════
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal')) return;
+  document.getElementById('modal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+window.toast = showToast;
+</script>
+</body>
+</html>
